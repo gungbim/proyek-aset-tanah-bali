@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final dengan Real-time Polling)
+// File: 🧠 script.js (Versi Final dengan CSV)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -18,29 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const desaSelect = document.getElementById('desa');
     const pemanfaatanSelect = document.getElementById('statusPemanfaatan');
     const appraisalSelect = document.getElementById('statusAppraisal');
+    const kepemilikanSelect = document.getElementById('kepemilikan'); // Ditambahkan untuk filter
     const searchForm = document.getElementById('searchForm');
-    
-    let assetMarkers = [];
+    const assetMarkers = [];
 
-    // ===== 2. FUNGSI-FUNGSI UTAMA =====
-
-    // FUNGSI BARU: Untuk membersihkan peta dan filter sebelum update
-    function clearMapAndFilters() {
-        assetMarkers.forEach(item => item.marker.removeFrom(map));
-        assetMarkers = [];
-
-        document.querySelectorAll('select').forEach(select => {
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
-        });
-    }
-
-    // FUNGSI UTAMA: Mengambil data, lalu menginisialisasi peta
-    async function fetchDataAndRefreshMap() {
-        console.log("Mengecek data baru dari Google Sheets...", new Date().toLocaleTimeString());
-        
-        // Link CSV Anda sudah dimasukkan di sini
+    // ===== 2. FUNGSI UTAMA UNTUK MENGAMBIL DATA CSV =====
+    function loadDataAndInitMap() {
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb0MoTVJMXsAMSDfqUB5E6I/pub?output=csv";
 
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
@@ -49,8 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
             complete: function(results) {
                 const dataAset = results.data;
                 
-                clearMapAndFilters();
-
                 dataAset.forEach(aset => {
                     aset.lat = parseFloat(aset.lat);
                     aset.lon = parseFloat(aset.lon);
@@ -58,14 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 displayAllMarkers(dataAset);
                 populateDropdowns(dataAset);
+                setupFiltering();
             },
             error: function(error) {
                 console.error("Gagal memuat atau membaca file CSV:", error);
+                alert("Gagal memuat data aset. Periksa kembali link CSV Anda.");
             }
         });
     }
 
-    // Fungsi-fungsi pembantu (display, populate, filter)
     function displayAllMarkers(dataAset) {
         dataAset.forEach(aset => {
             if (aset.lat && aset.lon) {
@@ -109,16 +91,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const desaValue = desaSelect.value;
             const pemanfaatanValue = pemanfaatanSelect.value;
             const appraisalValue = appraisalSelect.value;
+            const kepemilikanValue = kepemilikanSelect.value;
 
             assetMarkers.forEach(item => {
                 const aset = item.aset;
                 const marker = item.marker;
+
                 const sertipikatMatch = (noSertipikatValue === "") || (aset.nosertipikat === noSertipikatValue);
                 const kabupatenMatch = (kabupatenValue === "") || (aset.kabupaten === kabupatenValue);
                 const desaMatch = (desaValue === "") || (aset.desa === desaValue);
                 const pemanfaatanMatch = (pemanfaatanValue === "") || (aset.statuspemanfaatan === pemanfaatanValue);
                 const appraisalMatch = (appraisalValue === "") || (aset.statusappraisal === appraisalValue);
-                if (sertipikatMatch && kabupatenMatch && desaMatch && pemanfaatanMatch && appraisalMatch) {
+                const kepemilikanMatch = (kepemilikanValue === "") || (aset.kepemilikan === kepemilikanValue);
+
+                if (sertipikatMatch && kabupatenMatch && desaMatch && pemanfaatanMatch && appraisalMatch && kepemilikanMatch) {
                     marker.addTo(map);
                 } else {
                     marker.removeFrom(map);
@@ -136,12 +122,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== 3. JALANKAN SEMUANYA! =====
-    
-    setupFiltering();
-    
-    fetchDataAndRefreshMap();
-
-    // Atur timer untuk mengecek data baru setiap 5 menit
-    setInterval(fetchDataAndRefreshMap, 300000); 
-
+    loadDataAndInitMap();
 });
