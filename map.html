@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SI Aset Tanah Provinsi Bali</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Sistem Informasi Aset Tanah - Provinsi Bali</h1>
+    </header>
+
+    <main>
+        <div class="search-container">
+            <h2>🔍 Pencarian Aset</h2>
+            <form id="searchForm">
+                <label for="noSertipikat">No. Sertipikat:</label>
+<select id="noSertipikat">
+    <option value="">-- Pilih Sertipikat --</option>
+</select>
+
+                <label for="kabupaten">Kabupaten:</label>
+                <select id="kabupaten">
+                    <option value="">-- Pilih Kabupaten --</option>
+                    </select>
+<label for="desa">Desa/Kelurahan:</label>
+<select id="desa">
+    <option value="">-- Semua Desa --</option>
+</select>
+
+<label for="statusPemanfaatan">Status Pemanfaatan:</label>
+<select id="statusPemanfaatan">
+    <option value="">-- Semua Status --</option>
+</select>
+
+<label for="statusAppraisal">Status Appraisal:</label>
+<select id="statusAppraisal">
+    <option value="">-- Semua Status --</option>
+</select>
+                <label for="kepemilikan">Status Kepemilikan:</label>
+                <select id="kepemilikan">
+                    <option value="">-- Semua Status --</option>
+                    <option value="Hak Pakai">Hak Pakai</option>
+                    <option value="Hak Pengelolaan">Hak Pengelolaan</option>
+                </select>
+
+                <button type="submit">Cari Lokasi</button>
+            </form>
+        </div>
+        
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
