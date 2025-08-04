@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final dengan Google Sheets)
+// File: 🧠 script.js (Versi Final dengan Real-time Polling)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -19,78 +19,91 @@ document.addEventListener('DOMContentLoaded', () => {
     const pemanfaatanSelect = document.getElementById('statusPemanfaatan');
     const appraisalSelect = document.getElementById('statusAppraisal');
     const searchForm = document.getElementById('searchForm');
-    const assetMarkers = [];
+    
+    let assetMarkers = [];
 
-    // ===== 2. FUNGSI UTAMA UNTUK MENGAMBIL DAN MEMPROSES DATA =====
-    async function loadDataAndInitMap() {
-        // ID Spreadsheet Anda sudah dimasukkan di sini
-        const SPREADSHEET_ID = "1E7F4L9a4QhAvHytlxJRXTiZtSjSj3JeUiRagdGyuuqw"; 
-        const url = `https://spreadsheets.google.com/feeds/list/${SPREADSHEET_ID}/od6/public/values?alt=json`;
+    // ===== 2. FUNGSI-FUNGSI UTAMA =====
 
-        try {
-            const response = await fetch(url);
-            const json = await response.json();
-            
-            // Konversi data dari format Google Sheets ke format yang kita inginkan
-            const dataAset = json.feed.entry.map(entry => ({
-                noSertipikat: entry.gsx$nosertipikat.$t,
-                kabupaten: entry.gsx$kabupaten.$t,
-                desa: entry.gsx$desa.$t,
-                kepemilikan: entry.gsx$kepemilikan.$t,
-                lat: parseFloat(entry.gsx$lat.$t),
-                lon: parseFloat(entry.gsx$lon.$t),
-                luasTanah: entry.gsx$luastanah.$t,
-                jenisTanah: entry.gsx$jenistanah.$t,
-                statusPemanfaatan: entry.gsx$statuspemanfaatan.$t,
-                statusAppraisal: entry.gsx$statusappraisal.$t
-            }));
+    // FUNGSI BARU: Untuk membersihkan peta dan filter sebelum update
+    function clearMapAndFilters() {
+        assetMarkers.forEach(item => item.marker.removeFrom(map));
+        assetMarkers = [];
 
-            // Setelah data berhasil didapat, jalankan fungsi untuk menampilkan peta dan filter
-            displayAllMarkers(dataAset);
-            populateDropdowns(dataAset);
-            setupFiltering(dataAset);
-
-        } catch (error) {
-            console.error("Gagal mengambil data dari Google Sheets:", error);
-            alert("Tidak dapat memuat data aset. Periksa kembali koneksi atau pengaturan Spreadsheet.");
-        }
+        document.querySelectorAll('select').forEach(select => {
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+        });
     }
 
+    // FUNGSI UTAMA: Mengambil data, lalu menginisialisasi peta
+    async function fetchDataAndRefreshMap() {
+        console.log("Mengecek data baru dari Google Sheets...", new Date().toLocaleTimeString());
+        
+        // Link CSV Anda sudah dimasukkan di sini
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb0MoTVJMXsAMSDfqUB5E6I/pub?output=csv";
+
+        Papa.parse(GOOGLE_SHEET_CSV_URL, {
+            download: true,
+            header: true,
+            complete: function(results) {
+                const dataAset = results.data;
+                
+                clearMapAndFilters();
+
+                dataAset.forEach(aset => {
+                    aset.lat = parseFloat(aset.lat);
+                    aset.lon = parseFloat(aset.lon);
+                });
+
+                displayAllMarkers(dataAset);
+                populateDropdowns(dataAset);
+            },
+            error: function(error) {
+                console.error("Gagal memuat atau membaca file CSV:", error);
+            }
+        });
+    }
+
+    // Fungsi-fungsi pembantu (display, populate, filter)
     function displayAllMarkers(dataAset) {
         dataAset.forEach(aset => {
-            const marker = L.marker([aset.lat, aset.lon]).addTo(map);
-            marker.bindPopup(
-                `<b>No Sertipikat:</b> ${aset.noSertipikat}<br>` +
-                `<b>Lokasi:</b> ${aset.desa}, ${aset.kabupaten}<br>` +
-                `<b>Keterangan:</b> ${aset.jenisTanah}<br>` +
-                `<b>Pemanfaatan:</b> ${aset.statusPemanfaatan}<br>` +
-                `<b>Appraisal:</b> ${aset.statusAppraisal}`
-            );
-            assetMarkers.push({ aset: aset, marker: marker });
+            if (aset.lat && aset.lon) {
+                const marker = L.marker([aset.lat, aset.lon]).addTo(map);
+                marker.bindPopup(
+                    `<b>No Sertipikat:</b> ${aset.nosertipikat}<br>`+
+                    `<b>Lokasi:</b> ${aset.desa}, ${aset.kabupaten}<br>`+
+                    `<b>Keterangan:</b> ${aset.jenistanah}<br>`+
+                    `<b>Pemanfaatan:</b> ${aset.statuspemanfaatan}<br>`+
+                    `<b>Appraisal:</b> ${aset.statusappraisal}`
+                );
+                assetMarkers.push({ aset: aset, marker: marker });
+            }
         });
     }
 
     function populateDropdowns(dataAset) {
         const createUniqueOptions = (element, dataField) => {
-            const uniqueValues = [...new Set(dataAset.map(item => item[item.dataField]))].sort();
+            const uniqueValues = [...new Set(dataAset.map(item => item[dataField]))].sort();
             uniqueValues.forEach(value => {
-                const option = document.createElement('option');
-                option.value = value;
-                option.textContent = value;
-                element.appendChild(option);
+                if(value) {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    element.appendChild(option);
+                }
             });
         };
-        createUniqueOptions(noSertipikatSelect, 'noSertipikat');
+        createUniqueOptions(noSertipikatSelect, 'nosertipikat');
         createUniqueOptions(kabupatenSelect, 'kabupaten');
         createUniqueOptions(desaSelect, 'desa');
-        createUniqueOptions(pemanfaatanSelect, 'statusPemanfaatan');
-        createUniqueOptions(appraisalSelect, 'statusAppraisal');
+        createUniqueOptions(pemanfaatanSelect, 'statuspemanfaatan');
+        createUniqueOptions(appraisalSelect, 'statusappraisal');
     }
 
-    function setupFiltering(dataAset) {
+    function setupFiltering() {
         searchForm.addEventListener('submit', (event) => {
             event.preventDefault();
-
             const noSertipikatValue = noSertipikatSelect.value;
             const kabupatenValue = kabupatenSelect.value;
             const desaValue = desaSelect.value;
@@ -100,13 +113,11 @@ document.addEventListener('DOMContentLoaded', () => {
             assetMarkers.forEach(item => {
                 const aset = item.aset;
                 const marker = item.marker;
-
-                const sertipikatMatch = (noSertipikatValue === "") || (aset.noSertipikat === noSertipikatValue);
+                const sertipikatMatch = (noSertipikatValue === "") || (aset.nosertipikat === noSertipikatValue);
                 const kabupatenMatch = (kabupatenValue === "") || (aset.kabupaten === kabupatenValue);
                 const desaMatch = (desaValue === "") || (aset.desa === desaValue);
-                const pemanfaatanMatch = (pemanfaatanValue === "") || (aset.statusPemanfaatan === pemanfaatanValue);
-                const appraisalMatch = (appraisalValue === "") || (aset.statusAppraisal === appraisalValue);
-
+                const pemanfaatanMatch = (pemanfaatanValue === "") || (aset.statuspemanfaatan === pemanfaatanValue);
+                const appraisalMatch = (appraisalValue === "") || (aset.statusappraisal === appraisalValue);
                 if (sertipikatMatch && kabupatenMatch && desaMatch && pemanfaatanMatch && appraisalMatch) {
                     marker.addTo(map);
                 } else {
@@ -115,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (noSertipikatValue) {
-                const target = assetMarkers.find(item => item.aset.noSertipikat === noSertipikatValue);
+                const target = assetMarkers.find(item => item.aset.nosertipikat === noSertipikatValue);
                 if(target) {
                     map.setView([target.aset.lat, target.aset.lon], 18);
                     target.marker.openPopup();
@@ -125,6 +136,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== 3. JALANKAN SEMUANYA! =====
-    loadDataAndInitMap();
+    
+    setupFiltering();
+    
+    fetchDataAndRefreshMap();
+
+    // Atur timer untuk mengecek data baru setiap 5 menit
+    setInterval(fetchDataAndRefreshMap, 300000); 
 
 });
