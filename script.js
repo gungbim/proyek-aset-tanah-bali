@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Final dengan Legenda Peta)
+// File: 🧠 script.js (Versi Final Lengkap dengan Semua Fitur)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     legend.addTo(map);
 
+    // Definisi Variabel Elemen HTML
     const noSertipikatSelect = document.getElementById('noSertipikat');
     const kabupatenSelect = document.getElementById('kabupaten');
     const desaSelect = document.getElementById('desa');
@@ -40,10 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportPdfButton = document.getElementById('exportPdfButton');
     const exportXlsButton = document.getElementById('exportXlsButton');
     
+    // Variabel Data dan Marker
     const markers = L.markerClusterGroup();
     let dataAset = [];
     let filteredData = [];
 
+    // Definisi Ikon Berwarna
     const greenIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
     const blueIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
     const yellowIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
@@ -58,6 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 dataAset = results.data.map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
                 refreshMapDisplay();
                 populateStaticDropdowns();
+            },
+            error: function(error) {
+                console.error("Gagal memuat atau membaca file CSV:", error);
+                alert("Gagal memuat data aset. Periksa kembali link CSV Anda.");
             }
         });
     }
@@ -176,4 +183,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 4. JALANKAN SEMUANYA! =====
     fetchData();
+
 });
