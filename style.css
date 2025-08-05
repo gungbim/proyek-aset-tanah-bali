@@ -71,115 +71,63 @@ form button {
     transition: background-color 0.2s;
 }
 
-.reset-button {
-    background-color: #6c757d;
-    margin-top: 20px;
-}
-.reset-button:hover {
-    background-color: #5a6268;
-}
+.reset-button { background-color: #6c757d; margin-top: 20px; }
+.reset-button:hover { background-color: #5a6268; }
 
-.print-button {
-    background-color: #17a2b8;
-    margin-top: 10px;
-}
-.print-button:hover {
-    background-color: #138496;
-}
+.print-button { background-color: #17a2b8; margin-top: 10px; }
+.print-button:hover { background-color: #138496; }
 
-.export-button {
-    background-color: #28a745;
-    margin-top: 10px;
-}
-.export-button:hover {
-    background-color: #218838;
-}
+.export-button { background-color: #28a745; margin-top: 10px; }
+.export-button:hover { background-color: #218838; }
 
-.map-container {
-    flex: 1;
-}
+.map-container { flex: 1; }
+#map { width: 100%; height: 100%; }
 
-#map {
-    width: 100%;
-    height: 100%;
-}
+.menu-toggle { display: none; font-size: 24px; background: none; border: none; color: white; cursor: pointer; margin-right: 15px; }
 
-.menu-toggle {
-    display: none;
-    font-size: 24px;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    margin-right: 15px;
-}
+.logout-button { margin-left: auto; align-self: center; background-color: #dc3545; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background-color 0.2s; }
+.logout-button:hover { background-color: #c82333; }
 
-/* --- Style untuk Tombol Logout --- */
-.logout-button {
-    margin-left: auto; /* Mendorong tombol ke kanan */
-    align-self: center; /* Menyelaraskan tombol secara vertikal */
-    background-color: #dc3545; /* Warna merah */
-    color: white;
-    padding: 8px 16px;
+/* Style untuk Legenda Peta */
+.legend {
+    padding: 6px 10px;
+    font: 14px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
-    text-decoration: none; /* Menghilangkan garis bawah link */
-    font-weight: bold;
-    font-size: 14px;
-    transition: background-color 0.2s;
+    line-height: 24px;
+    color: #555;
 }
-.logout-button:hover {
-    background-color: #c82333;
+.legend h4 {
+    text-align: center;
+    font-size: 16px;
+    margin: 4px 0 8px;
+    color: #333;
 }
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    border: 1px solid #999;
+    opacity: 0.9;
+}
+
 
 @media (max-width: 768px) {
-    header {
-        justify-content: flex-start;
-    }
-    header h1 {
-        font-size: 16px;
-        text-align: left;
-        margin-right: auto; /* Mendorong judul ke kiri saat ada tombol logout */
-    }
-    .menu-toggle {
-        display: block;
-    }
-    main {
-        flex-direction: column;
-    }
-    .search-container {
-        width: 100%;
-        height: 50vh;
-        position: absolute;
-        left: 0;
-        top: 57px; /* Sesuaikan dengan tinggi header Anda */
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-        z-index: 999;
-        border-right: none;
-    }
-    .search-container.open {
-        transform: translateX(0);
-    }
-    .map-container {
-        height: 100vh;
-    }
+    header { justify-content: flex-start; }
+    header h1 { font-size: 16px; text-align: left; margin-right: auto; }
+    .menu-toggle { display: block; }
+    main { flex-direction: column; }
+    .search-container { width: 100%; height: 50vh; position: absolute; left: 0; top: 57px; transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 999; border-right: none; }
+    .search-container.open { transform: translateX(0); }
+    .map-container { height: 100vh; }
 }
 
 @media print {
-    body > *:not(main) {
-        display: none;
-    }
-    main, .map-container, #map {
-        width: 100% !important;
-        height: 100vh !important;
-        padding: 0;
-        margin: 0;
-    }
-    .search-container, .leaflet-control-container, .logout-button {
-        display: none;
-    }
-    .leaflet-tile-pane {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
+    body > *:not(main) { display: none; }
+    main, .map-container, #map { width: 100% !important; height: 100vh !important; padding: 0; margin: 0; }
+    .search-container, .leaflet-control-container, .logout-button { display: none; }
+    .leaflet-tile-pane { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
