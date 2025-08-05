@@ -5,29 +5,37 @@ body {
     background-color: #f4f4f4;
     display: flex;
     flex-direction: column;
-    height: 100vh; /* Tinggi 100% dari viewport */
+    height: 100vh;
 }
 
 header {
-    background-color: #2c3e50; /* Biru gelap */
+    background-color: #2c3e50;
     color: white;
     padding: 1rem;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 1000; /* Agar header selalu di atas */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+header h1 {
+    flex-grow: 1;
+    margin: 0;
+    font-size: 22px;
 }
 
 main {
     display: flex;
-    flex: 1; /* Agar main mengisi sisa tinggi layar */
-    overflow: hidden; /* Mencegah scroll di level main */
+    flex: 1;
+    overflow: hidden;
 }
 
 .search-container {
     width: 380px;
     padding: 20px;
     background: white;
-    overflow-y: auto; /* Jika kontennya panjang, panel bisa di-scroll */
+    overflow-y: auto;
     border-right: 1px solid #ddd;
 }
 
@@ -51,29 +59,101 @@ form input, form select, form button {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Pastikan padding tidak menambah lebar */
+    box-sizing: border-box;
     font-size: 15px;
 }
 
 form button {
-    background-color: #007bff;
     color: white;
     border: none;
-    margin-top: 25px;
     cursor: pointer;
     font-weight: bold;
     transition: background-color 0.2s;
 }
 
-form button:hover {
-    background-color: #0056b3;
+.reset-button {
+    background-color: #6c757d;
+    margin-top: 20px;
+}
+.reset-button:hover {
+    background-color: #5a6268;
+}
+
+.print-button {
+    background-color: #17a2b8;
+    margin-top: 10px;
+}
+.print-button:hover {
+    background-color: #138496;
 }
 
 .map-container {
-    flex: 1; /* Peta akan mengisi sisa ruang */
+    flex: 1;
 }
 
 #map {
     width: 100%;
     height: 100%;
+}
+
+.menu-toggle {
+    display: none;
+    font-size: 24px;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    margin-right: 15px;
+}
+
+@media (max-width: 768px) {
+    header {
+        justify-content: flex-start;
+    }
+    header h1 {
+        font-size: 16px;
+        text-align: left;
+    }
+    .menu-toggle {
+        display: block;
+    }
+    main {
+        flex-direction: column;
+    }
+    .search-container {
+        width: 100%;
+        height: 50vh;
+        position: absolute;
+        left: 0;
+        top: 57px; /* Sesuaikan dengan tinggi header */
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 999;
+        border-right: none;
+    }
+    .search-container.open {
+        transform: translateX(0);
+    }
+    .map-container {
+        height: 100vh;
+    }
+}
+
+@media print {
+    body > *:not(main) {
+        display: none;
+    }
+    main, .map-container, #map {
+        width: 100% !important;
+        height: 100vh !important;
+        padding: 0;
+        margin: 0;
+    }
+    .search-container, .leaflet-control-container {
+        display: none;
+    }
+    .leaflet-tile-pane {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
