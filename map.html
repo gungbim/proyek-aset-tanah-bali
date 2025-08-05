@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.autotable.min.js"></script>
+    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -58,6 +61,9 @@
 
                 <button type="button" id="resetButton" class="reset-button">🔄 Reset Filter</button>
                 <button type="button" id="printButton" class="print-button">🖨️ Cetak Peta</button>
+                
+                <button type="button" id="exportPdfButton" class="export-button">📄 Ekspor PDF</button>
+                <button type="button" id="exportXlsButton" class="export-button">📊 Ekspor XLS</button>
             </form>
         </div>
         
