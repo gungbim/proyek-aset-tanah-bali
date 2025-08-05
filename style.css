@@ -87,6 +87,14 @@ form button {
     background-color: #138496;
 }
 
+.export-button {
+    background-color: #28a745;
+    margin-top: 10px;
+}
+.export-button:hover {
+    background-color: #218838;
+}
+
 .map-container {
     flex: 1;
 }
@@ -106,6 +114,23 @@ form button {
     margin-right: 15px;
 }
 
+/* --- Style untuk Tombol Logout --- */
+.logout-button {
+    margin-left: auto; /* Mendorong tombol ke kanan */
+    align-self: center; /* Menyelaraskan tombol secara vertikal */
+    background-color: #dc3545; /* Warna merah */
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none; /* Menghilangkan garis bawah link */
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+.logout-button:hover {
+    background-color: #c82333;
+}
+
 @media (max-width: 768px) {
     header {
         justify-content: flex-start;
@@ -113,6 +138,7 @@ form button {
     header h1 {
         font-size: 16px;
         text-align: left;
+        margin-right: auto; /* Mendorong judul ke kiri saat ada tombol logout */
     }
     .menu-toggle {
         display: block;
@@ -125,7 +151,7 @@ form button {
         height: 50vh;
         position: absolute;
         left: 0;
-        top: 57px; /* Sesuaikan dengan tinggi header */
+        top: 57px; /* Sesuaikan dengan tinggi header Anda */
         transform: translateX(-100%);
         transition: transform 0.3s ease-in-out;
         z-index: 999;
@@ -149,18 +175,11 @@ form button {
         padding: 0;
         margin: 0;
     }
-    .search-container, .leaflet-control-container {
+    .search-container, .leaflet-control-container, .logout-button {
         display: none;
     }
     .leaflet-tile-pane {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
-}
-.export-button {
-    background-color: #28a745; /* Warna hijau */
-    margin-top: 10px;
-}
-.export-button:hover {
-    background-color: #218838;
 }
