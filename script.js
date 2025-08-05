@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final dengan Filter Dinamis & Marker Cluster)
+// File: 🧠 script.js (Versi dengan Status Tanah)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -13,67 +13,66 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     L.control.layers(baseLayers).addTo(map);
 
-    // Variabel untuk elemen-elemen filter
+    // Variabel elemen filter (diperbarui)
     const noSertipikatSelect = document.getElementById('noSertipikat');
     const kabupatenSelect = document.getElementById('kabupaten');
     const desaSelect = document.getElementById('desa');
-    const pemanfaatanSelect = document.getElementById('statusPemanfaatan');
+    const tanahSelect = document.getElementById('statusTanah'); // Diubah dari pemanfaatanSelect
     const appraisalSelect = document.getElementById('statusAppraisal');
     const searchForm = document.getElementById('searchForm');
-
-    // Inisialisasi Grup Marker Cluster
+    
     const markers = L.markerClusterGroup();
-    let dataAset = []; // Akan diisi setelah data diambil
+    let dataAset = [];
+
+    // Definisi ikon berwarna
+    const greenIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+    const blueIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+    const yellowIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+    const redIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
 
     // ===== 2. FUNGSI-FUNGSI UTAMA =====
-
-    // Mengambil data dari Google Sheets
+    
     function fetchData() {
-        console.log("Mengambil data dari Google Sheets...");
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb0MoTVJMXsAMSDfqUB5E6I/pub?output=csv";
-
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true,
             header: true,
             complete: function(results) {
-                // Simpan data aset yang sudah bersih
-                dataAset = results.data.map(aset => ({
-                    ...aset,
-                    lat: parseFloat(aset.lat),
-                    lon: parseFloat(aset.lon)
-                }));
-                
-                // Setelah data siap, tampilkan semuanya
+                dataAset = results.data.map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
                 refreshMapDisplay();
                 populateStaticDropdowns();
-            },
-            error: function(error) {
-                console.error("Gagal memuat atau membaca file CSV:", error);
-                alert("Gagal memuat data aset. Periksa kembali link CSV Anda.");
             }
         });
     }
 
-    // Menampilkan marker (sekarang menggunakan cluster)
     function displayMarkers(filteredData) {
-        markers.clearLayers(); // Bersihkan layer cluster yang lama
+        markers.clearLayers();
         filteredData.forEach(aset => {
             if (aset.lat && aset.lon) {
-                const marker = L.marker([aset.lat, aset.lon]);
+                
+                // Logika Ikon Marker (diperbarui ke aset.statustanah)
+                let markerIcon;
+                const status = aset.statustanah ? aset.statustanah.toLowerCase() : "";
+
+                if (status.includes('sewa')) { markerIcon = greenIcon; } 
+                else if (status.includes('digunakan')) { markerIcon = blueIcon; }
+                else if (status.includes('pinjam pakai')) { markerIcon = yellowIcon; } 
+                else if (status.includes('bermasalah')) { markerIcon = redIcon; }
+                else { markerIcon = new L.Icon.Default(); }
+
+                const marker = L.marker([aset.lat, aset.lon], { icon: markerIcon });
+                
                 marker.bindPopup(
                     `<b>No Sertipikat:</b> ${aset.nosertipikat}<br>`+
                     `<b>Lokasi:</b> ${aset.desa}, ${aset.kabupaten}<br>`+
-                    `<b>Keterangan:</b> ${aset.jenistanah}<br>`+
-                    `<b>Pemanfaatan:</b> ${aset.statuspemanfaatan}<br>`+
-                    `<b>Appraisal:</b> ${aset.statusappraisal}`
+                    `<b>Status Tanah:</b> ${aset.statustanah}` // Diubah
                 );
-                markers.addLayer(marker); // Tambahkan marker ke GRUP CLUSTER
+                markers.addLayer(marker);
             }
         });
-        map.addLayer(markers); // Tambahkan grup cluster ke peta
+        map.addLayer(markers);
     }
-
-    // Mengisi dropdown yang tidak dinamis
+    
     function populateStaticDropdowns() {
         const createUniqueOptions = (element, dataField) => {
             const uniqueValues = [...new Set(dataAset.map(item => item[dataField]))].sort();
@@ -88,15 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         createUniqueOptions(noSertipikatSelect, 'nosertipikat');
         createUniqueOptions(kabupatenSelect, 'kabupaten');
-        createUniqueOptions(pemanfaatanSelect, 'statuspemanfaatan');
+        createUniqueOptions(tanahSelect, 'statustanah'); // Diubah
         createUniqueOptions(appraisalSelect, 'statusappraisal');
     }
     
-    // FITUR BARU: Mengisi dropdown Desa berdasarkan Kabupaten yang dipilih
     function updateDesaDropdown() {
         const selectedKabupaten = kabupatenSelect.value;
-        desaSelect.innerHTML = '<option value="">-- Semua Desa --</option>'; // Reset dropdown desa
-
+        desaSelect.innerHTML = '<option value="">-- Semua Desa --</option>';
         if (selectedKabupaten) {
             const desasInKabupaten = dataAset.filter(item => item.kabupaten === selectedKabupaten);
             const uniqueDesas = [...new Set(desasInKabupaten.map(item => item.desa))].sort();
@@ -111,49 +108,39 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Memperbarui tampilan peta berdasarkan semua filter
     function refreshMapDisplay() {
-        // Ambil nilai dari semua filter
         const noSertipikatValue = noSertipikatSelect.value;
         const kabupatenValue = kabupatenSelect.value;
         const desaValue = desaSelect.value;
-        const pemanfaatanValue = pemanfaatanSelect.value;
+        const tanahValue = tanahSelect.value; // Diubah
         const appraisalValue = appraisalSelect.value;
         const kepemilikanValue = document.getElementById('kepemilikan').value;
         
-        // Filter data utama berdasarkan nilai form
         let filteredData = dataAset.filter(aset => {
             const sertipikatMatch = !noSertipikatValue || aset.nosertipikat === noSertipikatValue;
             const kabupatenMatch = !kabupatenValue || aset.kabupaten === kabupatenValue;
             const desaMatch = !desaValue || aset.desa === desaValue;
-            const pemanfaatanMatch = !pemanfaatanValue || aset.statuspemanfaatan === pemanfaatanValue;
+            const tanahMatch = !tanahValue || aset.statustanah === tanahValue; // Diubah
             const appraisalMatch = !appraisalValue || aset.statusappraisal === appraisalValue;
             const kepemilikanMatch = !kepemilikanValue || aset.kepemilikan === kepemilikanValue;
-            return sertipikatMatch && kabupatenMatch && desaMatch && pemanfaatanMatch && appraisalMatch && kepemilikanMatch;
+            return sertipikatMatch && kabupatenMatch && desaMatch && tanahMatch && appraisalMatch && kepemilikanMatch;
         });
-        
         displayMarkers(filteredData);
     }
 
     // ===== 3. PENGATURAN EVENT LISTENER =====
-    
-    // Listener untuk dropdown kabupaten (Filter Desa Dinamis)
     kabupatenSelect.addEventListener('change', updateDesaDropdown);
 
-    // Listener untuk form pencarian
     searchForm.addEventListener('submit', (event) => {
         event.preventDefault();
-        refreshMapDisplay(); // Terapkan semua filter
+        refreshMapDisplay();
         
-        // Jika no sertipikat spesifik dipilih, zoom ke sana
         const noSertipikatValue = noSertipikatSelect.value;
         if (noSertipikatValue) {
             const target = dataAset.find(aset => aset.nosertipikat === noSertipikatValue);
             if (target) {
                 map.setView([target.lat, target.lon], 18);
-                // Buka popup marker yang sesuai
                 markers.eachLayer(marker => {
-                    // Cek jika koordinat marker sama dengan data target
                     if (marker.getLatLng().lat === target.lat && marker.getLatLng().lng === target.lon) {
                         marker.openPopup();
                     }
