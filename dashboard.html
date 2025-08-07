@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Kronologi - SI Aset Tanah</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Style khusus untuk halaman dashboard */
+        main { flex-direction: column; padding: 20px; overflow-y: auto; }
+        .aset-card { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px; padding: 20px; }
+        .aset-card h3 { margin-top: 0; border-bottom: 2px solid #dc3545; padding-bottom: 10px; }
+        .kronologi-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .kronologi-table th, .kronologi-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .kronologi-table th { background-color: #f2f2f2; }
+        .nav-button { margin-left: auto; align-self: center; background-color: #007bff; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dashboard Kronologi Aset Bermasalah</h1>
+        <a href="map.html" class="nav-button">Kembali ke Peta</a>
+    </header>
+
+    <main id="dashboard-container">
+        <p>Memuat data...</p>
+    </main>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

@@ -85,14 +85,43 @@ form button {
 
 .menu-toggle { display: none; font-size: 24px; background: none; border: none; color: white; cursor: pointer; margin-right: 15px; }
 
-.logout-button { margin-left: auto; align-self: center; background-color: #dc3545; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 14px; transition: background-color 0.2s; }
-.logout-button:hover { background-color: #c82333; }
+/* --- Style untuk Tombol Navigasi & Logout --- */
+.nav-button {
+    margin-left: auto; /* Mendorong tombol ini & logout ke kanan */
+    align-self: center;
+    background-color: #007bff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    margin-right: 10px; /* Jarak ke tombol logout */
+}
+.nav-button:hover {
+    background-color: #0056b3;
+}
+.logout-button {
+    margin-left: 0; /* Hapus margin-left otomatis */
+    align-self: center;
+    background-color: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+.logout-button:hover {
+    background-color: #c82333;
+}
+
 
 /* Style untuk Legenda Peta */
 .legend {
     padding: 6px 10px;
     font: 14px Arial, Helvetica, sans-serif;
-    background: white;
     background: rgba(255,255,255,0.9);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
@@ -117,7 +146,8 @@ form button {
 
 @media (max-width: 768px) {
     header { justify-content: flex-start; }
-    header h1 { font-size: 16px; text-align: left; margin-right: auto; }
+    header h1 { font-size: 16px; text-align: left; flex-grow: 0; }
+    .nav-button { margin-left: auto; } /* Pastikan tetap di kanan */
     .menu-toggle { display: block; }
     main { flex-direction: column; }
     .search-container { width: 100%; height: 50vh; position: absolute; left: 0; top: 57px; transform: translateX(-100%); transition: transform 0.3s ease-in-out; z-index: 999; border-right: none; }
@@ -128,6 +158,6 @@ form button {
 @media print {
     body > *:not(main) { display: none; }
     main, .map-container, #map { width: 100% !important; height: 100vh !important; padding: 0; margin: 0; }
-    .search-container, .leaflet-control-container, .logout-button { display: none; }
+    .search-container, .leaflet-control-container, .logout-button, .nav-button { display: none; }
     .leaflet-tile-pane { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
