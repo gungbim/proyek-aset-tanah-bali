@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final Lengkap dengan Semua Fitur)
+// File: 🧠 script.js (Versi Final dengan Struktur Tree)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -9,31 +9,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const map = L.map('map', { center: [-8.409518, 115.188919], zoom: 9.5, layers: [streetLayer] });
     L.control.layers(baseLayers).addTo(map);
 
-    // Menambahkan Kontrol Legenda Peta
     const legend = L.control({position: 'bottomright'});
     legend.onAdd = function (map) {
         const div = L.DomUtil.create('div', 'info legend');
-        const categories = {
-            "Tanah Disewa": "green",
-            "Digunakan Sendiri": "blue",
-            "Pinjam Pakai": "yellow",
-            "Bermasalah": "red"
-        };
-        div.innerHTML = '<h4>Keterangan Status Tanah</h4>';
+        // Keterangan legenda bisa disesuaikan lagi jika perlu
+        const categories = { "Sewa": "green", "Digunakan Sendiri": "blue", "Pinjam Pakai": "yellow", "Bermasalah": "red" };
+        div.innerHTML = '<h4>Keterangan</h4>';
         for (const category in categories) {
             div.innerHTML += '<i style="background:' + categories[category] + '"></i> ' + category + '<br>';
         }
         return div;
     };
     legend.addTo(map);
-
-    // Definisi Variabel Elemen HTML
+    
+    // Variabel elemen filter (diperbarui sesuai HTML baru)
     const noSertipikatSelect = document.getElementById('noSertipikat');
     const kabupatenSelect = document.getElementById('kabupaten');
     const desaSelect = document.getElementById('desa');
-    const tanahSelect = document.getElementById('statusTanah');
-    const appraisalSelect = document.getElementById('statusAppraisal');
-    const kepemilikanSelect = document.getElementById('kepemilikan');
+    const kategoriSelect = document.getElementById('kategori');
+    const statusPemanfaatanSelect = document.getElementById('statusPemanfaatan');
+    const jenisPemanfaatanSelect = document.getElementById('jenisPemanfaatan');
     const resetButton = document.getElementById('resetButton');
     const printButton = document.getElementById('printButton');
     const menuToggle = document.getElementById('menuToggle');
@@ -41,12 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportPdfButton = document.getElementById('exportPdfButton');
     const exportXlsButton = document.getElementById('exportXlsButton');
     
-    // Variabel Data dan Marker
     const markers = L.markerClusterGroup();
     let dataAset = [];
     let filteredData = [];
 
-    // Definisi Ikon Berwarna
     const greenIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
     const blueIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
     const yellowIcon = new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
@@ -54,50 +47,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 2. FUNGSI-FUNGSI UTAMA =====
     function fetchData() {
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb0MoTVJMXsAMSDfqUB5E6I/pub?output=csv";
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb_oTVJMXsAMSDfqUB5E6I/pub?output=csv";
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true, header: true,
             complete: function(results) {
                 dataAset = results.data.map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
                 refreshMapDisplay();
                 populateStaticDropdowns();
-            },
-            error: function(error) {
-                console.error("Gagal memuat atau membaca file CSV:", error);
-                alert("Gagal memuat data aset. Periksa kembali link CSV Anda.");
             }
         });
     }
 
+    // Diperbarui: Popup menampilkan data dari kolom baru
     function displayMarkers(data) {
         markers.clearLayers();
         data.forEach(aset => {
             if (aset.lat && aset.lon) {
                 let markerIcon;
-                const status = aset.statustanah ? aset.statustanah.toLowerCase() : "";
+                // Logika pewarnaan sekarang didasarkan pada 'jenispemanfaatan'
+                const status = aset.jenispemanfaatan ? aset.jenispemanfaatan.toLowerCase() : "";
                 if (status.includes('sewa')) { markerIcon = greenIcon; } 
-                else if (status.includes('digunakan')) { markerIcon = blueIcon; }
+                else if (status.includes('digunakan sendiri')) { markerIcon = blueIcon; }
                 else if (status.includes('pinjam pakai')) { markerIcon = yellowIcon; } 
                 else if (status.includes('bermasalah')) { markerIcon = redIcon; }
                 else { markerIcon = new L.Icon.Default(); }
 
                 const marker = L.marker([aset.lat, aset.lon], { icon: markerIcon });
-                marker.bindPopup(`<b>No Sertipikat:</b> ${aset.nosertipikat}<br><b>Lokasi:</b> ${aset.desa}, ${aset.kabupaten}<br><b>Status Tanah:</b> ${aset.statustanah}`);
+                marker.bindPopup(
+                    `<b>No Sertipikat:</b> ${aset.nosertipikat}<br>`+
+                    `<b>Lokasi:</b> ${aset.desa}, ${aset.kabupaten}<br>`+
+                    `<b>Kategori:</b> ${aset.kategori || '-'}<br>`+
+                    `<b>Pemanfaatan:</b> ${aset.statuspemanfaatan || '-'}<br>`+
+                    `<b>Jenis Pemanfaatan:</b> ${aset.jenispemanfaatan || '-'}`
+                );
                 markers.addLayer(marker);
             }
         });
         map.addLayer(markers);
     }
 
+    // Diperbarui: Mengisi dropdown baru
     function populateStaticDropdowns() {
         const createUniqueOptions = (element, dataField) => {
             const uniqueValues = [...new Set(dataAset.map(item => item[dataField]))].sort();
-            uniqueValues.forEach(value => { if(value) { const option = document.createElement('option'); option.value = value; option.textContent = value; element.appendChild(option); }});
+            uniqueValues.forEach(value => { if(value && value.trim() !== '' && value.trim() !== '-') { const option = document.createElement('option'); option.value = value; option.textContent = value; element.appendChild(option); }});
         };
         createUniqueOptions(noSertipikatSelect, 'nosertipikat');
         createUniqueOptions(kabupatenSelect, 'kabupaten');
-        createUniqueOptions(tanahSelect, 'statustanah');
-        createUniqueOptions(appraisalSelect, 'statusappraisal');
+        createUniqueOptions(kategoriSelect, 'kategori');
+        createUniqueOptions(statusPemanfaatanSelect, 'statuspemanfaatan');
+        createUniqueOptions(jenisPemanfaatanSelect, 'jenispemanfaatan');
     }
     
     function updateDesaDropdown() {
@@ -110,11 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // Diperbarui: Logika filter menggunakan ID elemen baru
     function refreshMapDisplay() {
         const filterValues = {
-            nosertipikat: noSertipikatSelect.value, kabupaten: kabupatenSelect.value,
-            desa: desaSelect.value, statustanah: tanahSelect.value,
-            statusappraisal: appraisalSelect.value, kepemilikan: kepemilikanSelect.value
+            nosertipikat: noSertipikatSelect.value, 
+            kabupaten: kabupatenSelect.value,
+            desa: desaSelect.value, 
+            kategori: kategoriSelect.value,
+            statuspemanfaatan: statusPemanfaatanSelect.value,
+            jenispemanfaatan: jenisPemanfaatanSelect.value
         };
         filteredData = dataAset.filter(aset => {
             return Object.keys(filterValues).every(key => !filterValues[key] || aset[key] === filterValues[key]);
@@ -123,18 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== 3. PENGATURAN EVENT LISTENER =====
-    const allFilters = [noSertipikatSelect, kabupatenSelect, desaSelect, tanahSelect, appraisalSelect, kepemilikanSelect];
+    const allFilters = [noSertipikatSelect, kabupatenSelect, desaSelect, kategoriSelect, statusPemanfaatanSelect, jenisPemanfaatanSelect];
     allFilters.forEach(select => {
         select.addEventListener('change', () => {
             if (select.id === 'kabupaten') { updateDesaDropdown(); }
             refreshMapDisplay();
-            if (noSertipikatSelect.value) {
-                const target = dataAset.find(aset => aset.nosertipikat === noSertipikatSelect.value);
-                if (target) {
-                    map.setView([target.lat, target.lon], 18);
-                    markers.eachLayer(marker => { if (marker.getLatLng().lat === target.lat && marker.getLatLng().lng === target.lon) { marker.openPopup(); } });
-                }
-            }
         });
     });
 
@@ -149,26 +145,20 @@ document.addEventListener('DOMContentLoaded', () => {
     menuToggle.addEventListener('click', () => searchContainer.classList.toggle('open'));
 
     exportPdfButton.addEventListener('click', () => {
-        if (filteredData.length === 0) {
-            alert("Tidak ada data untuk diekspor. Silakan pilih filter terlebih dahulu atau reset filter.");
-            return;
-        }
+        if (filteredData.length === 0) { alert("Tidak ada data untuk diekspor."); return; }
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         doc.text("Laporan Data Aset Tanah", 14, 16);
-        const tableColumn = ["No Sertipikat", "Kabupaten", "Desa", "Jenis Tanah", "Status Tanah", "Luas"];
-        const tableRows = filteredData.map(item => [item.nosertipikat, item.kabupaten, item.desa, item.jenistanah, item.statustanah, item.luastanah]);
+        const tableColumn = ["No Sertipikat", "Kabupaten", "Desa", "Kategori", "Jenis Pemanfaatan"];
+        const tableRows = filteredData.map(item => [item.nosertipikat, item.kabupaten, item.desa, item.kategori, item.jenispemanfaatan]);
         doc.autoTable({ head: [tableColumn], body: tableRows, startY: 20 });
         doc.save('laporan-aset-tanah.pdf');
     });
 
     exportXlsButton.addEventListener('click', () => {
-        if (filteredData.length === 0) {
-            alert("Tidak ada data untuk diekspor. Silakan pilih filter terlebih dahulu atau reset filter.");
-            return;
-        }
-        const headers = "No Sertipikat,Kabupaten,Desa,Jenis Tanah,Status Tanah,Luas,Latitude,Longitude\n";
-        const csvRows = filteredData.map(item => `"${item.nosertipikat}","${item.kabupaten}","${item.desa}","${item.jenistanah}","${item.statustanah}","${item.luastanah}","${item.lat}","${item.lon}"`).join("\n");
+        if (filteredData.length === 0) { alert("Tidak ada data untuk diekspor."); return; }
+        const headers = Object.keys(filteredData[0]).join(',') + '\n';
+        const csvRows = filteredData.map(item => Object.values(item).map(val => `"${val}"`).join(',')).join('\n');
         const csvContent = headers + csvRows;
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
@@ -183,5 +173,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 4. JALANKAN SEMUANYA! =====
     fetchData();
-
 });

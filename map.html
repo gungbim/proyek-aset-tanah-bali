@@ -21,9 +21,7 @@
     <header>
         <button id="menuToggle" class="menu-toggle">☰</button>
         <h1>Sistem Informasi Aset Tanah - Provinsi Bali</h1>
-        
         <a href="dashboard.html" class="nav-button">Permasalahan Aset</a>
-
         <a href="index.html" class="logout-button">Logout</a>
     </header>
 
@@ -33,12 +31,12 @@
             <form id="searchForm">
                 <label for="noSertipikat">No. Sertipikat:</label>
                 <select id="noSertipikat">
-                    <option value="">-- Pilih Sertipikat --</option>
+                    <option value="">-- Semua Sertipikat --</option>
                 </select>
 
                 <label for="kabupaten">Kabupaten:</label>
                 <select id="kabupaten">
-                    <option value="">-- Pilih Kabupaten --</option>
+                    <option value="">-- Semua Kabupaten --</option>
                 </select>
 
                 <label for="desa">Desa/Kelurahan:</label>
@@ -46,26 +44,23 @@
                     <option value="">-- Semua Desa --</option>
                 </select>
 
-                <label for="statusTanah">Status Tanah:</label>
-                <select id="statusTanah">
+                <label for="kategori">Kategori Penggunaan:</label>
+                <select id="kategori">
+                    <option value="">-- Semua Kategori --</option>
+                </select>
+
+                <label for="statusPemanfaatan">Status Pemanfaatan:</label>
+                <select id="statusPemanfaatan">
                     <option value="">-- Semua Status --</option>
                 </select>
 
-                <label for="statusAppraisal">Status Appraisal:</label>
-                <select id="statusAppraisal">
-                    <option value="">-- Semua Status --</option>
-                </select>
-                
-                <label for="kepemilikan">Status Kepemilikan:</label>
-                <select id="kepemilikan">
-                    <option value="">-- Semua Status --</option>
-                    <option value="Hak Pakai">Hak Pakai</option>
-                    <option value="Hak Pengelolaan">Hak Pengelolaan</option>
+                <label for="jenisPemanfaatan">Jenis Pemanfaatan:</label>
+                <select id="jenisPemanfaatan">
+                    <option value="">-- Semua Jenis --</option>
                 </select>
 
                 <button type="button" id="resetButton" class="reset-button">🔄 Reset Filter</button>
                 <button type="button" id="printButton" class="print-button">🖨️ Cetak Peta</button>
-                
                 <button type="button" id="exportPdfButton" class="export-button">📄 Ekspor PDF</button>
                 <button type="button" id="exportXlsButton" class="export-button">📊 Ekspor XLS</button>
             </form>
@@ -77,7 +72,6 @@
     </main>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    
     <script src="script.js"></script>
 </body>
 </html>
