@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final dengan Struktur Tree)
+// File: 🧠 script.js (Versi dengan Penanganan Error Baris Kosong)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const legend = L.control({position: 'bottomright'});
     legend.onAdd = function (map) {
         const div = L.DomUtil.create('div', 'info legend');
-        // Keterangan legenda bisa disesuaikan lagi jika perlu
         const categories = { "Sewa": "green", "Digunakan Sendiri": "blue", "Pinjam Pakai": "yellow", "Bermasalah": "red" };
         div.innerHTML = '<h4>Keterangan</h4>';
         for (const category in categories) {
@@ -22,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     legend.addTo(map);
     
-    // Variabel elemen filter (diperbarui sesuai HTML baru)
+    // Variabel elemen filter
     const noSertipikatSelect = document.getElementById('noSertipikat');
     const kabupatenSelect = document.getElementById('kabupaten');
     const desaSelect = document.getElementById('desa');
@@ -47,25 +46,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 2. FUNGSI-FUNGSI UTAMA =====
     function fetchData() {
-        // Pastikan Anda menggunakan link CSV dari sheet utama yang sudah diperbarui
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb_oTVJMXsAMSDfqUB5E6I/pub?output=csv"; 
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true, header: true,
+            // Perubahan di sini: tambahkan skipEmptyLines
+            skipEmptyLines: true,
             complete: function(results) {
-                dataAset = results.data.map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
+                // Perubahan di sini: filter data yang tidak valid
+                dataAset = results.data.filter(aset => aset.nosertipikat && aset.nosertipikat.trim() !== '').map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
+                
                 refreshMapDisplay();
                 populateStaticDropdowns();
+            },
+            error: function(error) {
+                console.error("Gagal memuat atau membaca file CSV:", error);
+                alert("Gagal memuat data aset. Periksa kembali link CSV atau isi Spreadsheet.");
             }
         });
     }
 
-    // Diperbarui: Popup menampilkan data dari kolom baru
+    // ... (Sisa fungsi Anda: displayMarkers, populateStaticDropdowns, dll. tetap sama) ...
+
     function displayMarkers(data) {
         markers.clearLayers();
         data.forEach(aset => {
             if (aset.lat && aset.lon) {
                 let markerIcon;
-                // Logika pewarnaan sekarang didasarkan pada 'jenispemanfaatan'
                 const status = aset.jenispemanfaatan ? aset.jenispemanfaatan.toLowerCase() : "";
                 if (status.includes('sewa')) { markerIcon = greenIcon; } 
                 else if (status.includes('digunakan sendiri')) { markerIcon = blueIcon; }
@@ -87,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         map.addLayer(markers);
     }
 
-    // Diperbarui: Mengisi dropdown baru
     function populateStaticDropdowns() {
         const createUniqueOptions = (element, dataField) => {
             const uniqueValues = [...new Set(dataAset.map(item => item[dataField]))].sort();
@@ -110,7 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Diperbarui: Logika filter menggunakan ID elemen baru
     function refreshMapDisplay() {
         const filterValues = {
             nosertipikat: noSertipikatSelect.value, 
@@ -126,7 +130,6 @@ document.addEventListener('DOMContentLoaded', () => {
         displayMarkers(filteredData);
     }
 
-    // ===== 3. PENGATURAN EVENT LISTENER =====
     const allFilters = [noSertipikatSelect, kabupatenSelect, desaSelect, kategoriSelect, statusPemanfaatanSelect, jenisPemanfaatanSelect];
     allFilters.forEach(select => {
         select.addEventListener('change', () => {
