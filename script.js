@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi dengan Penanganan Error Baris Kosong)
+// File: 🧠 script.js (Versi Final dengan Penanganan Error Baris Kosong)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -48,12 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function fetchData() {
         const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb_oTVJMXsAMSDfqUB5E6I/pub?output=csv"; 
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
-            download: true, header: true,
-            // Perubahan di sini: tambahkan skipEmptyLines
-            skipEmptyLines: true,
+            download: true,
+            header: true,
+            skipEmptyLines: true, // Seharusnya ini sudah cukup, tapi kita tambahkan filter manual
             complete: function(results) {
-                // Perubahan di sini: filter data yang tidak valid
-                dataAset = results.data.filter(aset => aset.nosertipikat && aset.nosertipikat.trim() !== '').map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
+                // Perubahan di sini: Filter manual untuk memastikan setiap baris adalah objek yang valid
+                const validData = results.data.filter(row => row && typeof row === 'object' && row.nosertipikat);
+
+                dataAset = validData.map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
                 
                 refreshMapDisplay();
                 populateStaticDropdowns();
@@ -64,8 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
-    // ... (Sisa fungsi Anda: displayMarkers, populateStaticDropdowns, dll. tetap sama) ...
 
     function displayMarkers(data) {
         markers.clearLayers();
