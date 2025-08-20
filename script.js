@@ -47,7 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== 2. FUNGSI-FUNGSI UTAMA =====
     function fetchData() {
-        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb_oTVJMXsAMSDfqUB5E6I/pub?output=csv";
+        // Pastikan Anda menggunakan link CSV dari sheet utama yang sudah diperbarui
+        const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSenU0Fl8Zs2LX-fq1JXcvvKy_KLazQgF8LdWX41uFxb4wTS-aSkaHZDEb_oTVJMXsAMSDfqUB5E6I/pub?output=csv"; 
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true, header: true,
             complete: function(results) {
