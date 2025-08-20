@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final dengan Penanganan Error Baris Kosong)
+// File: 🧠 script.js (Versi Final dengan Konversi Data Aman)
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -50,12 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
         Papa.parse(GOOGLE_SHEET_CSV_URL, {
             download: true,
             header: true,
-            skipEmptyLines: true, // Seharusnya ini sudah cukup, tapi kita tambahkan filter manual
+            skipEmptyLines: true,
             complete: function(results) {
-                // Perubahan di sini: Filter manual untuk memastikan setiap baris adalah objek yang valid
-                const validData = results.data.filter(row => row && typeof row === 'object' && row.nosertipikat);
+                // Perubahan di sini: Pastikan results.data adalah array
+                let rawData = results.data;
+                if (!Array.isArray(rawData)) {
+                    rawData = Object.values(rawData);
+                }
 
-                dataAset = validData.map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
+                dataAset = rawData.filter(aset => aset && aset.nosertipikat && aset.nosertipikat.trim() !== '').map(aset => ({ ...aset, lat: parseFloat(aset.lat), lon: parseFloat(aset.lon) }));
                 
                 refreshMapDisplay();
                 populateStaticDropdowns();
