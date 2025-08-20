@@ -1,4 +1,4 @@
-// File: 🧠 script.js (Versi Final dengan Konversi Data Aman)
+// File: 🧠 script.js (Versi dengan Penanganan Error Baris Kosong)
 
 document.addEventListener('DOMContentLoaded', () => {
 
